@@ -76,12 +76,11 @@ class SignUp(Resource):
             if userdata:
                 return jsonify({"msg": "Already Registered, please do login!!"})
             else:
-                token = Helper.encode_auth_token(data)
                 new_user = App_Users(name=data[Users.Name], username=data[Users.UserName],
-                                     password=data[Users.Password],token=token)
+                                     password=data[Users.Password],token=None)
                 db.session.add(new_user)
                 db.session.commit()
-                return jsonify({"msg": "Successfully Registered", "token": str(token)})
+                return jsonify({"msg": "Successfully Registered"})
 
 
 class Login(Resource):
@@ -102,11 +101,16 @@ class Login(Resource):
             data = {"response": "ERROR"}
             return jsonify(data)
         else:
-            userdata = App_Users.query.filter(App_Users.username == data['username']).all()
+            userdata = App_Users.query.filter(App_Users.username == data['username']).first()
             if userdata:
-                pwddata = App_Users.query.filter(App_Users.password == data['password']).all()
+                pwddata = App_Users.query.filter(App_Users.password == data['password']).first()
                 if pwddata:
-                    return jsonify({"msg": "Login Successful!!"})
+                    token = Helper.encode_auth_token(data)
+                    user_data = App_Users.query.filter(App_Users.username == data['username'],App_Users.password == data['password']).first()
+                    userdata.token = token
+                    db.session.add(user_data)
+                    db.session.commit()
+                    return jsonify({"msg": "Login Successful!!","token": str(token)})
                 else:
                     return jsonify({"msg": "Invalid Password. Please enter correct password"})
             else:
