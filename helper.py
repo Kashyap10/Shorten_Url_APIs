@@ -2,6 +2,7 @@ from config import Config
 import jwt
 import datetime
 import pyshorteners
+from baseconv import base62
 
 class Helper():
     @staticmethod
@@ -67,3 +68,15 @@ class Helper():
             return originalurl
         except Exception as e:
             return e
+
+    @staticmethod
+    def short_url(lastid):
+        """
+        This function will generate short url based on last autoincremented id from table here we are adding 100000000000
+        as we want to generate 7 character long unique id
+        :param lastid: last autoincremented id from table
+        :return: short url
+        """
+        number = lastid +100000000000
+        bs62encoded = base62.encode(number)
+        return 'https://abc.com/{id}'.format(id=str(bs62encoded))

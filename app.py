@@ -139,6 +139,13 @@ class Shorten_Url(Resource):
                 if url_data:
                     shorturl = url_data.shortenurl
                 else:
+                    lastiddata = Url_Details.query.order_by(Url_Details.id.desc()).first()
+                    if lastiddata:
+                        lastid = lastiddata.id
+                    else:
+                        lastid = 0
+                    # shorturl = Helper.short_url(lastid)
+                    # print(shorturl)
                     shorturl  = Helper.get_shorten_url(url)
                     new_url = Url_Details(originalurl=url, shortenurl=shorturl)
                     db.session.add(new_url)
